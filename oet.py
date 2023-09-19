@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Code partially inspired from interweb search results, but I forgot to note which urls.
+# Code partially inspired from an mcp23017 github, but I forgot to note which urls.
 #
 
 
@@ -27,16 +27,25 @@ register_map = {value: key for key, value in iter(address_map.items())}
 max_len      = max(len(key) for key in register_map)
 
 
-# Other variables
-counter          = 0
-i2c_bus_num      = 10
+# OET Setup
+mcp1_bus         = 10
 mcp1_addr        = 0x20
 mcp1_num_buttons = 4
-sleep            = 1
+mcp1_button_map  = {
+    0: 'UI_1',
+    1: 'UI_2',
+    2: 'BR-',
+    3: 'BR+',
+}
+
+
+# Other variables
+counter          = 0
+sleep            = 0.01
 
 
 # Initialize the bus
-bus = smbus.SMBus(i2c_bus_num)
+bus = smbus.SMBus(mcp1_bus)
 
 # and enable all the pullups
 bus.write_byte_data(mcp1_addr, register_map['GPPU'], 0xFF)
@@ -56,7 +65,7 @@ try:
         for x in range(mcp1_num_buttons):
 #            print("bit = {}".format(1<<x))
             if not (gpio & (1<<x)):
-                print("Button on pin {} Pressed!".format(x))
+                print("{} Button Pressed!".format(mcp1_button_map[x]))
         counter += 1
 #        print("counter = %s" % counter)
         time.sleep(sleep)
