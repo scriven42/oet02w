@@ -5,11 +5,12 @@
 #
 
 
-import time
+import time,datetime
 import smbus
+import logging
 
 
-# MCP23008 address setup
+# MCP23008 setup
 address_map = {
     0x00: 'IODIR',
     0x01: 'IPOL',
@@ -40,15 +41,39 @@ mcp1_button_map  = {
 
 
 # Other variables
-counter          = 0
-sleep            = 0.01
+counter            = 0
+sleep              = 0.01
+timestamp_format   = "%Y%m%d_%H%M%S.%f%z"
+timedisplay_format = "%Y-%m-%d %H:%M:%S %z"
+
+
+# Setup some functions and logging
+def get_timestamp():
+    now = datetime.datetime.now()
+    return str(now.strftime(timestamp_format))
+
+
+def get_timedisplay():
+    now = datetime.datetime.now()
+    return str(now.strftime(timedisplay_format))
+
+
+logging.basicConfig(filename='oet_'+get_timestamp()+'.log', encoding='utf-8', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.debug('Logging started')
+
+
+def logprint(lp_text):
+    logging.info(lp_text)
+    print(lp_text)
 
 
 # Initialize the bus
 bus = smbus.SMBus(mcp1_bus)
+logprint("Bus #{} initialized".format(mcp1_bus))
 
 # and enable all the pullups
 bus.write_byte_data(mcp1_addr, register_map['GPPU'], 0xFF)
+logprint("Pull-up resistors enabled for all pins on bus {} at address {}".format(mcp1_bus,mcp1_addr))
 
 
 def print_mcp_values(pmv_bus, pmv_addr):
@@ -65,10 +90,10 @@ try:
         for x in range(mcp1_num_buttons):
 #            print("bit = {}".format(1<<x))
             if not (gpio & (1<<x)):
-                print("{} Button Pressed!".format(mcp1_button_map[x]))
+                logprint("{} Button Pressed!".format(mcp1_button_map[x]))
         counter += 1
 #        print("counter = %s" % counter)
         time.sleep(sleep)
 except KeyboardInterrupt:
-    print("Keyboard interrupt")
+    logprint("Keyboard interrupt")
 
