@@ -84,7 +84,13 @@ class OET_Buttons:
         mcp1_button_info[x] = {}
 
 
-    def __init__(self):
+    def __init__(self, button0_click_clbk, button1_click_clbk, button2_click_clbk, button3_click_clbk):
+        # Add the passed callback to the button info
+        self.mcp1_button_info[0]['click_callback'] = button0_click_clbk
+        self.mcp1_button_info[1]['click_callback'] = button1_click_clbk
+        self.mcp1_button_info[2]['click_callback'] = button2_click_clbk
+        self.mcp1_button_info[3]['click_callback'] = button3_click_clbk
+
         # Initialize the bus
         self.mcp1_bus = smbus.SMBus(self.mcp1_bus_num)
         print("Bus #{} initialized".format(self.mcp1_bus_num))
@@ -98,11 +104,12 @@ class OET_Buttons:
         while True:
             output = ""
             chord_change = False
-#            print_mcp_values(self.mcp1_bus, self.mcp1_addr)
+
+            # Read the button status on the GPIO register
             gpio = self.mcp1_bus.read_byte_data(self.mcp1_addr, self.register_map['GPIO'])
+
             for x in range(self.mcp1_num_buttons):
                 temp = ""
-#                print("bit = {}".format(1<<x))
                 now = time.time()
                 if not (gpio & (1<<x)):
                     if ('status' not in self.mcp1_button_info[x] or self.mcp1_button_info[x]['status'] != "Pressed"):
@@ -118,18 +125,18 @@ class OET_Buttons:
                         length = now - self.mcp1_button_info[x]['time']
                         if length >= 1:
                             temp = "Call Hold callback for {} (time: {})".format(self.mcp1_button_map[x], length)
-#                            temp = "{} Button Released, was held for {} ".format(self.mcp1_button_map[x], length)
                         else:
+                            if 'click_callback' in self.mcp1_button_info[x]:
+                                self.mcp1_button_info[x]['click_callback']()
                             temp = "Call Click callback for {} (time: {})".format(self.mcp1_button_map[x], length)
-#                            temp = "{} Button Clicked (took: {}) ".format(self.mcp1_button_map[x], length)
                         self.mcp1_button_info[x]['time'] = now
                         self.buttons_pressed.remove(self.mcp1_button_map[x])
                         chord_change = True
                     output = output + temp
             if (len(self.buttons_pressed) > 1 and chord_change):
                 output = output + "Buttons Pressed: {}".format(self.buttons_pressed)
-            if output:
-                print(output)
+#            if output:
+#                print(output)
             time.sleep(self.button_sleep)
 
 
