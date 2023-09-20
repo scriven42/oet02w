@@ -121,8 +121,10 @@ class OET_Buttons:
                     # Check if the status variable even exists, and if it does it it already set to pressed?
                     if ('status' not in self.mcp1_button_info[x] or self.mcp1_button_info[x]['status'] != "Pressed"):
                         between = 0
+                        prev_time = 0
                         if 'time' in self.mcp1_button_info[x]:
-                            between = now - self.mcp1_button_info[x]['time']
+                            prev_time = self.mcp1_button_info[x]['time']
+                            between   = now - prev_time
                         self.mcp1_button_info[x]['status'] = "Pressed"
                         self.mcp1_button_info[x]['time'] = now
                         temp = "{} Button Pressed! {}s since it was released ".format(self.mcp1_button_map[x], between)
@@ -132,6 +134,8 @@ class OET_Buttons:
 
                         if (between < self.double_click_time):
                             temp = temp + " double_click_start detected!?"
+                            self.mcp1_button_info[x]['double'] = True
+                            self.mcp1_button_info[x]['prev_time'] = prev_time
                 else:
 
                     # No button press here
@@ -139,7 +143,14 @@ class OET_Buttons:
                     if ('status' in self.mcp1_button_info[x] and self.mcp1_button_info[x]['status'] == "Pressed"):
                         self.mcp1_button_info[x]['status'] = "Released"
                         length = now - self.mcp1_button_info[x]['time']
-                        if length >= self.hold_time:
+#                        if ('double' in self.mcp1_button_info[x] and self.mcp1_button_info[x]['double']):
+#
+#                            # A Double-Click has been released!
+#                            if 'double_click_callback' in self.mcp1_button_info[x]:
+#                                self.mcp1_button_info[x]['double_click_callback']()
+#                            temp = "Call Double-Click callback for {} (time: {})".format(self.mcp1_button_map[x], length)
+#                        elif (length >= self.hold_time):
+                        if (length >= self.hold_time):
 
                             # A Hold has been released!
                             if 'hold_callback' in self.mcp1_button_info[x]:
@@ -151,6 +162,8 @@ class OET_Buttons:
                             if 'click_callback' in self.mcp1_button_info[x]:
                                 self.mcp1_button_info[x]['click_callback']()
                             temp = "Call Click callback for {} (time: {})".format(self.mcp1_button_map[x], length)
+                            self.mcp1_button_info[x]['double'] = False
+                            self.mcp1_button_info[x]['prev_time'] = 0
                         self.mcp1_button_info[x]['time'] = now
                         self.buttons_pressed.remove(self.mcp1_button_map[x])
                         chord_change = True

@@ -6,3 +6,6 @@
 
 # Python cache
 __pycache__/
+
+# Github security
+.github_auth_token
