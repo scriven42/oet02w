@@ -23,7 +23,9 @@ see what I could do with them when basing everything on the OpenEyeTap concept.
 
 ## Hardware
 
-I've designed a version of the eyetap that is self-contained and can be strapped to a pair of glasses. It connects to a HAU (Hardware Attached Underneath) connected under a Raspberry Pi Zero 2w via a short micro-hdmi cable.
+I've designed a version of the eyetap that is self-contained and can be strapped to a pair of glasses. It
+connects via a short micro-hdmi cable to a HAU (Hardware Attached Underneath) board connected under a
+Raspberry Pi Zero 2w.
 
 The HAU board connects to the Raspberry Pi via spring pins on the back, a well as a camera connector. The spring
 pins connect to power, ground, the USB +/-/OTC and TV Out ports. A mini-usb power-in jack with power protection is
