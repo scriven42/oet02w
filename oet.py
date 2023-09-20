@@ -8,6 +8,8 @@
 import time,datetime
 import smbus
 import logging
+import configparser
+import json
 
 
 # MCP23008 setup
@@ -27,27 +29,30 @@ address_map = {
 register_map = {value: key for key, value in iter(address_map.items())}
 max_len      = max(len(key) for key in register_map)
 
-
-# OET Setup
-mcp1_bus         = 10
-mcp1_addr        = 0x20
-mcp1_num_buttons = 4
-mcp1_button_map  = {
-    0: 'UI_1',
-    1: 'UI_2',
-    2: 'BR-',
-    3: 'BR+',
-}
-
+# Load Config
+config = configparser.ConfigParser()
+config.read('oet.ini')
 
 # Other variables
-counter            = 0
-sleep              = 0.01
-timestamp_format   = "%Y%m%d_%H%M%S.%f%z"
-timedisplay_format = "%Y-%m-%d %H:%M:%S %z"
+counter               = 0
+sleep                 = 1.0
+if config.has_option('Default','sleep'):
+    sleep             = float(config.get('Default','sleep'))
+
+timestamp_format      = "%Y%m%d_%H%M%S"
+if config.has_option('Default','timestamp_format'):
+    timestamp_format  = config.get('Default','timestamp_format')
+
+timedisplay_format    = "%Y-%m-%d %H:%M:%S"
+if config.has_option('Default','timedisplay_format'):
+    timedisplay_format = config.get('Default','timedisplay_format')
 
 
 # Setup some functions and logging
+def keystoint(x):
+    return {int(k): v for k, v in x}
+
+
 def get_timestamp():
     now = datetime.datetime.now()
     return str(now.strftime(timestamp_format))
@@ -67,15 +72,6 @@ def logprint(lp_text):
     print(lp_text)
 
 
-# Initialize the bus
-bus = smbus.SMBus(mcp1_bus)
-logprint("Bus #{} initialized".format(mcp1_bus))
-
-# and enable all the pullups
-bus.write_byte_data(mcp1_addr, register_map['GPPU'], 0xFF)
-logprint("Pull-up resistors enabled for all pins on bus {} at address {}".format(mcp1_bus,mcp1_addr))
-
-
 def print_mcp_values(pmv_bus, pmv_addr):
     print("-" * 20)
     for addr in address_map:
@@ -83,14 +79,71 @@ def print_mcp_values(pmv_bus, pmv_addr):
         print("%-*s = 0x%02X" % (max_len, address_map[addr], value))
 
 
+# OET Setup
+mcp1_bus_num        = 1
+if config.has_option('OET','mcp1_bus_num'):
+    mcp1_bus_num    = int(config.get('OET','mcp1_bus_num'))
+
+mcp1_addr           = 0x20
+if config.has_option('OET','mcp1_addr'):
+    mcp1_addr       = int(config.get('OET','mcp1_addr'), base=16)
+
+mcp1_button_map     = {
+    0: 'UI_1',
+    1: 'UI_2',
+    2: 'UI_3',
+    3: 'UI_4',
+}
+if config.has_option('OET','mcp1_button_map'):
+    mcp1_button_map = json.loads(config.get('OET','mcp1_button_map'), object_pairs_hook=keystoint)
+
+mcp1_num_buttons    = len(mcp1_button_map)
+mcp1_button_info    = {}
+for x in range(mcp1_num_buttons):
+    mcp1_button_info[x] = {}
+
+
+# Initialize the bus
+mcp1_bus = smbus.SMBus(mcp1_bus_num)
+logprint("Bus #{} initialized".format(mcp1_bus_num))
+
+# and enable all the pullups
+mcp1_bus.write_byte_data(mcp1_addr, register_map['GPPU'], 0xFF)
+logprint("Pull-up resistors enabled for all pins on bus {} at address {}".format(mcp1_bus_num,hex(mcp1_addr)))
+
+
 try:
+    buttons_pressed = []
     while True:
-#        print_mcp_values(bus, mcp1_addr)
-        gpio = bus.read_byte_data(mcp1_addr, register_map['GPIO'])
+        output = ""
+        chord_change = False
+#        print_mcp_values(mcp1_bus, mcp1_addr)
+        gpio = mcp1_bus.read_byte_data(mcp1_addr, register_map['GPIO'])
         for x in range(mcp1_num_buttons):
+            temp = ""
 #            print("bit = {}".format(1<<x))
             if not (gpio & (1<<x)):
-                logprint("{} Button Pressed!".format(mcp1_button_map[x]))
+                if ('status' not in mcp1_button_info[x] or mcp1_button_info[x]['status'] != "Pressed"):
+                    mcp1_button_info[x]['status'] = "Pressed"
+                    mcp1_button_info[x]['time'] = time.time()
+                    temp = "{} Button Pressed! ".format(mcp1_button_map[x])
+                    if x not in buttons_pressed:
+                        buttons_pressed.append(x)
+                        chord_change = True
+            else:
+                if ('status' in mcp1_button_info[x] and mcp1_button_info[x]['status'] == "Pressed"):
+                    mcp1_button_info[x]['status'] = "Released"
+                    now = time.time()
+                    length = now - mcp1_button_info[x]['time']
+                    temp = "{} Button Released, was held for {} ".format(mcp1_button_map[x], length)
+                    mcp1_button_info[x]['time'] = now
+                    buttons_pressed.remove(x)
+                    chord_change = True
+            output = output + temp
+        if (len(buttons_pressed) > 1 and chord_change):
+            output = output + "Chords: {}".format(buttons_pressed)
+        if output:
+            logprint(output)
         counter += 1
 #        print("counter = %s" % counter)
         time.sleep(sleep)
