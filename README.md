@@ -15,7 +15,7 @@ Since the OET project was paused, RPi has released the Zero 2, which has the pow
 formfactor almost exactly like the OG Zero. And there has also been a major change in the Raspberry Pi OS as to
 how the cameras are handled in the background.
 
-With this all in mind, I set out in the late 20-teens to take all my general "wearabe computer" notes and
+With this all in mind, I set out in the late 20-teens to take all my general "wearable computer" notes and
 see what I could do with them when basing everything on the OpenEyeTap concept.
 
 ## Contributing
@@ -36,7 +36,7 @@ who participated in this project.
 
 ## Acknowledgments
 
-  - Dr. Prof. Steve Mann, for all his groundbreaking work on wearable computers
+  - [Dr. Prof. Steve Mann](https://www.eecg.utoronto.ca/~mann/), for all his groundbreaking work on wearable computers
   - Hat tip to anyone whose code is used
   - Inspiration
   - etc
