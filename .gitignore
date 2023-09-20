@@ -1,4 +1,8 @@
 # Ignore VI swap files
 .*.swp
+
 # Ignore all logs
 *.log
+
+# Python cache
+__pycache__/
