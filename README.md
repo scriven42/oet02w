@@ -45,7 +45,7 @@ Next steps will be implementing a basic HUD drawn on the framebuffer, then addin
 and finally adding the camera when I can polarize the screen out of the camera's view.
 
 
-### Prerequisites
+## System Setup & Prerequisites
 
 Currently the only setting that needs to be configured is in the /boot/config.txt file. You need to ensure
 that this line is included. It will allow the i2c on the csi & dsi busses to show up as i2c-10.
