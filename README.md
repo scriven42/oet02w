@@ -67,6 +67,5 @@ who participated in this project.
 
   - [Dr. Prof. Steve Mann](https://www.eecg.utoronto.ca/~mann/), for all his groundbreaking work on wearable computers
   - Hat tip to anyone whose code is used
-  - Inspiration
-  - etc
+  - There have been far too many sites that offered inspiration over the years,but I will try and collect as many here as I can
 
