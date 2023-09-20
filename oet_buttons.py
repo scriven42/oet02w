@@ -84,16 +84,18 @@ class OET_Buttons:
         mcp1_button_info[x] = {}
 
 
-    def __init__(self, button0_click_clbk, button1_click_clbk, button2_click_clbk, button3_click_clbk, button0_hold_clbk, button1_hold_clbk, button2_hold_clbk, button3_hold_clbk):
-        # Add the passed callback to the button info
-        self.mcp1_button_info[0]['click_callback'] = button0_click_clbk
-        self.mcp1_button_info[1]['click_callback'] = button1_click_clbk
-        self.mcp1_button_info[2]['click_callback'] = button2_click_clbk
-        self.mcp1_button_info[3]['click_callback'] = button3_click_clbk
-        self.mcp1_button_info[0]['hold_callback']  = button0_hold_clbk
-        self.mcp1_button_info[1]['hold_callback']  = button1_hold_clbk
-        self.mcp1_button_info[2]['hold_callback']  = button2_hold_clbk
-        self.mcp1_button_info[3]['hold_callback']  = button3_hold_clbk
+    def __init__(self, **kwargs):
+        
+        # Add the passed callbacks to the button info, starting from 0
+        # Format for the **kwargs key is button#_<action>_clbk, ie: button0_click_clbk
+        
+        for x in range(self.mcp1_num_buttons):
+            button_click_callback_key = "button" + str(x) +"_click_clbk"
+            button_hold_callback_key = "button" + str(x) +"_hold_clbk"
+            if (button_click_callback_key in kwargs):
+                self.mcp1_button_info[x]['click_callback'] = kwargs[button_click_callback_key]
+            if (button_hold_callback_key in kwargs):
+                self.mcp1_button_info[x]['hold_callback'] = kwargs[button_hold_callback_key]
 
         # Initialize the bus
         self.mcp1_bus = smbus.SMBus(self.mcp1_bus_num)
@@ -159,6 +161,8 @@ class OET_Buttons:
                         else:
 
                             # A Click has been released!
+                            # TODO: Figure out how to add a delay of double_click_time+1 loop so we know it's
+                            # a single click and not a double-click
                             if 'click_callback' in self.mcp1_button_info[x]:
                                 self.mcp1_button_info[x]['click_callback']()
                             temp = "Call Click callback for {} (time: {})".format(self.mcp1_button_map[x], length)
