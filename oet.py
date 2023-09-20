@@ -49,6 +49,18 @@ def logprint(lp_text):
     logging.info(lp_text)
     print(lp_text)
 
+def ui1_hold_callback():
+    logprint("UI_1 Button Held!")
+
+def ui2_hold_callback():
+    logprint("UI_2 Button Held!")
+
+def brm_hold_callback():
+    logprint("BR- Button Held!")
+
+def brp_hold_callback():
+    logprint("BR+ Button Held!")
+
 def ui1_click_callback():
     logprint("UI_1 Button Clicked!")
 
@@ -61,7 +73,7 @@ def brm_click_callback():
 def brp_click_callback():
     logprint("BR+ Button Clicked!")
 
-oet = OET_Buttons(ui1_click_callback, ui2_click_callback, brm_click_callback, brp_click_callback)
+oet = OET_Buttons(ui1_click_callback, ui2_click_callback, brm_click_callback, brp_click_callback, ui1_hold_callback, ui2_hold_callback, brm_hold_callback, brp_hold_callback)
 oet.start_loop_thread()
 logprint('OET Button Loop Thread started')
 

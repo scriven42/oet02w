@@ -41,7 +41,7 @@ class OET_Buttons:
 
 
     # OET Setup
-    button_sleep            = 1.0
+    button_sleep            = 0.001
     if config.has_option('OET','button_sleep'):
         button_sleep        = float(config.get('OET','button_sleep'))
 
@@ -84,12 +84,16 @@ class OET_Buttons:
         mcp1_button_info[x] = {}
 
 
-    def __init__(self, button0_click_clbk, button1_click_clbk, button2_click_clbk, button3_click_clbk):
+    def __init__(self, button0_click_clbk, button1_click_clbk, button2_click_clbk, button3_click_clbk, button0_hold_clbk, button1_hold_clbk, button2_hold_clbk, button3_hold_clbk):
         # Add the passed callback to the button info
         self.mcp1_button_info[0]['click_callback'] = button0_click_clbk
         self.mcp1_button_info[1]['click_callback'] = button1_click_clbk
         self.mcp1_button_info[2]['click_callback'] = button2_click_clbk
         self.mcp1_button_info[3]['click_callback'] = button3_click_clbk
+        self.mcp1_button_info[0]['hold_callback']  = button0_hold_clbk
+        self.mcp1_button_info[1]['hold_callback']  = button1_hold_clbk
+        self.mcp1_button_info[2]['hold_callback']  = button2_hold_clbk
+        self.mcp1_button_info[3]['hold_callback']  = button3_hold_clbk
 
         # Initialize the bus
         self.mcp1_bus = smbus.SMBus(self.mcp1_bus_num)
@@ -112,27 +116,45 @@ class OET_Buttons:
                 temp = ""
                 now = time.time()
                 if not (gpio & (1<<x)):
+
+                    # Hey we have a button press!
+                    # Check if the status variable even exists, and if it does it it already set to pressed?
                     if ('status' not in self.mcp1_button_info[x] or self.mcp1_button_info[x]['status'] != "Pressed"):
+                        between = 0
+                        if 'time' in self.mcp1_button_info[x]:
+                            between = now - self.mcp1_button_info[x]['time']
                         self.mcp1_button_info[x]['status'] = "Pressed"
                         self.mcp1_button_info[x]['time'] = now
-                        temp = "{} Button Pressed! ".format(self.mcp1_button_map[x])
+                        temp = "{} Button Pressed! {}s since it was released ".format(self.mcp1_button_map[x], between)
                         if self.mcp1_button_map[x] not in self.buttons_pressed:
                             self.buttons_pressed.append(self.mcp1_button_map[x])
                             chord_change = True
+
+                        if (between < self.double_click_time):
+                            temp = temp + " double_click_start detected!?"
                 else:
+
+                    # No button press here
+                    # Check if the status variable even exists, and if it does is it set to Pressed, which means this is a release?
                     if ('status' in self.mcp1_button_info[x] and self.mcp1_button_info[x]['status'] == "Pressed"):
                         self.mcp1_button_info[x]['status'] = "Released"
                         length = now - self.mcp1_button_info[x]['time']
-                        if length >= 1:
+                        if length >= self.hold_time:
+
+                            # A Hold has been released!
+                            if 'hold_callback' in self.mcp1_button_info[x]:
+                                self.mcp1_button_info[x]['hold_callback']()
                             temp = "Call Hold callback for {} (time: {})".format(self.mcp1_button_map[x], length)
                         else:
+
+                            # A Click has been released!
                             if 'click_callback' in self.mcp1_button_info[x]:
                                 self.mcp1_button_info[x]['click_callback']()
                             temp = "Call Click callback for {} (time: {})".format(self.mcp1_button_map[x], length)
                         self.mcp1_button_info[x]['time'] = now
                         self.buttons_pressed.remove(self.mcp1_button_map[x])
                         chord_change = True
-                    output = output + temp
+                output = output + temp
             if (len(self.buttons_pressed) > 1 and chord_change):
                 output = output + "Buttons Pressed: {}".format(self.buttons_pressed)
 #            if output:
