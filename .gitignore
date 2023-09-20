@@ -9,3 +9,6 @@ __pycache__/
 
 # Github security
 .github_auth_token
+
+# Other stuff
+README.md.template
