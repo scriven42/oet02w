@@ -102,3 +102,5 @@ who participated in this project.
 Sharing is caring, but if you use this to target the victims of colonization and the other people our society
 shits on, you're a piece of shit and I revoke your specific right to use this code.
 
+
+# Sousveillance For All!
