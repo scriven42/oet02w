@@ -72,6 +72,9 @@ I welcome people helping, but haven't yet figured out any formalized way of doin
 
   - **Adam Scriven** - *Initial coder* -
     [Scriven42](https://github.com/Scriven42)
+  - **Thea Sky Barnes** - *framebuffer lib from aer pitftmanager code* -
+    [tsbarnes](https://github.com/tsbarnes)
+    https://github.com/tsbarnes/pitftmanager/
   - **Billie Thompson** - *Provided README Template* -
     [PurpleBooth](https://github.com/PurpleBooth)
 
