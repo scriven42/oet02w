@@ -55,12 +55,17 @@ and finally adding the camera when I can polarize the screen out of the camera's
 As with most other Raspberry Pi-based projects, you'll want to enable your local settings with the raspi-config
 command. For this project, we need the i2c interface enabled.
 
-The only setting that needs to be configured manually for the buttons is in the /boot/config.txt file. You need to
-ensure that this line is included. It will allow the i2c on the csi & dsi busses to show up as i2c-10.
+There are some settings that need to be configured manually in the /boot/config.txt file. For the buttons
+you need to ensure that this line is included. It will allow the i2c on the csi & dsi busses to show up as i2c-10.
 
 `dtparam=i2c_vc=on`
 
-We will need to add more lines for the screen and camera when we get there, however.
+For the screen, the best way I've found to make it work is to include:
+
+`
+dtoverlay=vc4-fkms-v3d,composite=1
+enable_tvout=1
+`
 
 
 ## Contributing
