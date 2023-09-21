@@ -58,7 +58,9 @@ command. For this project, we need the i2c interface enabled.
 There are some settings that need to be configured manually in the /boot/config.txt file. For the buttons
 you need to ensure that this line is included. It will allow the i2c on the csi & dsi busses to show up as i2c-10.
 
-```dtparam=i2c_vc=on```
+```
+dtparam=i2c_vc=on
+```
 
 For the screen, the best way I've found to make it work is to include:
 
