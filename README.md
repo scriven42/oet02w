@@ -2,16 +2,19 @@
 
 This is both an update to, and a new design for, the OpenEyeTap by Prof. Steve Mann.
 
+### OpenEyeTap Links
+
+- [Instructable: OpenEyeTap: 3D Printed & Programmable Smart Glass](https://www.instructables.com/OpenEyeTap-3D-Printed-Programmable-Smart-Glass/),
+- [Instructable: Augmented Reality Eyeglass With Thermal Vision: Build Your Own Low-cost Raspberry Pi EyeTap](https://www.instructables.com/Augmented-Reality-Eyeglass-With-Thermal-Vision-Bui/),
+- [Currently defunct openeyetap.com](https://openeyetap.com/)
+
 
 ## Background
 
 I've personally been interested in computers since I was a child, and wearables for almost as
-long. I came across the OpenEyeTap project
-([Instructable: OpenEyeTap: 3D Printed & Programmable Smart Glass](https://www.instructables.com/OpenEyeTap-3D-Printed-Programmable-Smart-Glass/),
-[Instructable: Augmented Reality Eyeglass With Thermal Vision: Build Your Own Low-cost Raspberry Pi EyeTap](https://www.instructables.com/Augmented-Reality-Eyeglass-With-Thermal-Vision-Bui/),
-[Currently defunct openeyetap.com](https://openeyetap.com/))
-and thought it was fantastic, but I have to wear glasses and there wasn't an included "case" for that. It was
-also based on the Raspberry Pi Zero, which is fine as a simple proof of concept, but it's quite underpowered.
+long. I came across the OpenEyeTap project and thought it was fantastic, but I have to wear glasses and there
+wasn't an included "case" for that. It was also based on the Raspberry Pi Zero, which is fine as a simple proof
+of concept, but it's quite underpowered.
 
 Since the OET project was paused, RPi has released the Zero 2, which has the power of a standard RPi 3 but a
 formfactor almost exactly like the OG Zero. And there has also been a major change in the Raspberry Pi OS as to
