@@ -49,8 +49,11 @@ and finally adding the camera when I can polarize the screen out of the camera's
 
 ## System Setup & Prerequisites
 
-The only setting that needs to be configured for the buttons is in the /boot/config.txt file. You need to ensure
-that this line is included. It will allow the i2c on the csi & dsi busses to show up as i2c-10.
+As with most other Raspberry Pi-based projects, you'll want to enable your local settings with the raspi-config
+command. For this project, we need the i2c interface enabled.
+
+The only setting that needs to be configured manually for the buttons is in the /boot/config.txt file. You need to
+ensure that this line is included. It will allow the i2c on the csi & dsi busses to show up as i2c-10.
 
 `dtparam=i2c_vc=on`
 
@@ -59,8 +62,7 @@ We will need to add more lines for the screen and camera when we get there, howe
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code
-of conduct, and the process for submitting pull requests to us.
+I welcome people helping, but haven't yet figured out any formalized way of doing this.
 
 
 ## Authors
