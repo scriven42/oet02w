@@ -6,7 +6,7 @@ This is both an update to, and a new design for, the OpenEyeTap by Prof. Steve M
 
 - [Instructable: OpenEyeTap: 3D Printed & Programmable Smart Glass](https://www.instructables.com/OpenEyeTap-3D-Printed-Programmable-Smart-Glass/),
 - [Instructable: Augmented Reality Eyeglass With Thermal Vision: Build Your Own Low-cost Raspberry Pi EyeTap](https://www.instructables.com/Augmented-Reality-Eyeglass-With-Thermal-Vision-Bui/),
-- [Currently defunct openeyetap.com](https://openeyetap.com/)
+- [openeyetap.com (currently defunct)](https://openeyetap.com/)
 
 
 ## Background
