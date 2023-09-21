@@ -1,6 +1,6 @@
 # OpenEyeTap 02w
 
-This is both an update to, and a new design for, the OpenEyeTap by Prof. Steve Mann.
+This is both an update to, and a new design for, the OpenEyeTap by [Dr. Prof. Steve Mann](https://www.eecg.utoronto.ca/~mann/).
 
 ### OpenEyeTap Links
 
