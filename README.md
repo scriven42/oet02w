@@ -63,7 +63,7 @@ you need to ensure that this line is included. It will allow the i2c on the csi 
 For the screen, the best way I've found to make it work is to include:
 
 `
-dtoverlay=vc4-fkms-v3d,composite=1
+dtoverlay=vc4-fkms-v3d,composite=1    
 enable_tvout=1
 `
 
