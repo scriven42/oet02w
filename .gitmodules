@@ -1,0 +1,3 @@
+[submodule "pitftmanager"]
+	path = pitftmanager
+	url = https://github.com/tsbarnes/pitftmanager.git
