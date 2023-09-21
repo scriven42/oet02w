@@ -96,3 +96,9 @@ who participated in this project.
   - Hat tip to anyone whose code is used
   - There have been far too many sites that offered inspiration over the years,but I will try and collect as many here as I can
 
+
+## License
+
+Sharing is caring, but if you use this to target the victims of colonization and the other people our society
+shits on, you're a piece of shit and I revoke your specific right to use this code.
+
