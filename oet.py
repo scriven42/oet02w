@@ -3,7 +3,7 @@
 #
 
 
-import os,time,datetime
+import time,datetime,sys
 import logging
 import configparser
 import json
@@ -169,89 +169,102 @@ def main():
     is_recording = False
     time_prev    = datetime.datetime.fromtimestamp(0)
 
-    while True:
-        loop_start_time = datetime.datetime.now()
-        logprint("Loop Started {}".format(loop_start_time))
-        # --- Create Transparent Overlay
-        overlay_frame = np.full((img_h, img_w, 4), (0, 0, 0, 0), np.uint8)
-        logprint("overlay frame created {}".format(datetime.datetime.now() - loop_start_time))
+    try:
+        # Turn the cursor off
+        sys.stdout.write("\033[?25l")
+        sys.stdout.flush()
+        while True:
+            loop_start_time = datetime.datetime.now()
+            logprint("Loop Started {}".format(loop_start_time))
+            # --- Create Transparent Overlay
+            overlay_frame = np.full((img_h, img_w, 4), (0, 0, 0, 0), np.uint8)
+#        logprint("overlay frame created {}".format(datetime.datetime.now() - loop_start_time))
 
-        # --- Add time stamp
-        cv2.putText(overlay_frame, str(get_timedisplay()) + " " + str(sleep_time), TS_ORIGIN, TS_FONT, TS_SCALE, TS_COLOUR, TS_THICKNESS)
+            # --- Add time stamp
+            cv2.putText(overlay_frame, str(get_timedisplay()) + " " + str(sleep_time), TS_ORIGIN, TS_FONT, TS_SCALE, TS_COLOUR, TS_THICKNESS)
 #        logprint("timestamp done {}".format(datetime.datetime.now() - loop_start_time))
 
-        # --- Determine raspberry pi status
-        logprint("status starting {}".format(datetime.datetime.now() - loop_start_time))
-        pt = subprocess.Popen(['/usr/bin/vcgencmd', 'get_throttled'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        (res,err) = pt.communicate()
-        res = res.decode().split("=")[1]
-        res = res.rstrip("\n")
-        if ((int(res,0) & 0x01) == 0x01):
-            cur_status_colour = RED_BGR
-        else:
-            cur_status_colour = GREEN
-        if ((int(res,0) & 0x50000) == 0x50000):
-            past_status_colour = RED_BGR
-        else:
-            past_status_colour = GREEN
+            # --- Determine raspberry pi status
+    #        logprint("status starting {}".format(datetime.datetime.now() - loop_start_time))
+            pt = subprocess.Popen(['/usr/bin/vcgencmd', 'get_throttled'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            (res,err) = pt.communicate()
+            res = res.decode().split("=")[1]
+            res = res.rstrip("\n")
+            if ((int(res,0) & 0x01) == 0x01):
+                cur_status_colour = RED_BGR
+            else:
+                cur_status_colour = GREEN
+            if ((int(res,0) & 0x50000) == 0x50000):
+                past_status_colour = RED_BGR
+            else:
+                past_status_colour = GREEN
 
-        # --- Put some status circles, current then past
-        # --- green for good red for bad
-        logprint("status drawing circles {}".format(datetime.datetime.now() - loop_start_time))
-        cv2.circle(overlay_frame, (CUR_STATUS_ORIGIN),  CUR_STATUS_RADIUS,  cur_status_colour,  -1)
-        cv2.circle(overlay_frame, (PAST_STATUS_ORIGIN), PAST_STATUS_RADIUS, past_status_colour, -1)
-        logprint("status all done {}".format(datetime.datetime.now() - loop_start_time))
+            # --- Put some status circles, current then past
+            # --- green for good red for bad
+    #        logprint("status drawing circles {}".format(datetime.datetime.now() - loop_start_time))
+            cv2.circle(overlay_frame, (CUR_STATUS_ORIGIN),  CUR_STATUS_RADIUS,  cur_status_colour,  -1)
+            cv2.circle(overlay_frame, (PAST_STATUS_ORIGIN), PAST_STATUS_RADIUS, past_status_colour, -1)
+    #        logprint("status all done {}".format(datetime.datetime.now() - loop_start_time))
 
-        # --- add a heartbeat circle
-#        logprint("heartbeat started {}".format(datetime.datetime.now() - loop_start_time))
-        time_now = datetime.datetime.now()
-        time_diff = time_now - time_prev
-        if (time_diff >= datetime.timedelta(seconds = 1)):
-            heartbeat = True
-            time_prev = time_now
-        else:
-            heartbeat = False
-        if (heartbeat):
-            cv2.circle(overlay_frame, (HEARTBEAT_ORIGIN), HEARTBEAT_RADIUS, TYRIAN_PURPLE_BGR, -1)
-#        logprint("heartbeat done {}".format(datetime.datetime.now() - loop_start_time))
+            # --- add a heartbeat circle
+    #        logprint("heartbeat started {}".format(datetime.datetime.now() - loop_start_time))
+            time_now = datetime.datetime.now()
+            time_diff = time_now - time_prev
+            if (time_diff >= datetime.timedelta(seconds = 1)):
+                heartbeat = True
+                time_prev = time_now
+            else:
+                heartbeat = False
+            if (heartbeat):
+                cv2.circle(overlay_frame, (HEARTBEAT_ORIGIN), HEARTBEAT_RADIUS, TYRIAN_PURPLE_BGR, -1)
+    #        logprint("heartbeat done {}".format(datetime.datetime.now() - loop_start_time))
 
-        # --- If we're recording, add another marker
-        if (is_recording):
-            recording_status_colour = RED_BGR
-            cv2.circle(overlay_frame, (RECORDING_STATUS_ORIGIN), RECORDING_STATUS_RADIUS, recording_status_colour, -1)
+            # --- If we're recording, add another marker
+            if (is_recording):
+                recording_status_colour = RED_BGR
+                cv2.circle(overlay_frame, (RECORDING_STATUS_ORIGIN), RECORDING_STATUS_RADIUS, recording_status_colour, -1)
 
-        # --- Check input queue
-#        logprint("Input check started {}".format(datetime.datetime.now() - loop_start_time))
-        input_key = ''
-        if (input_queue.qsize() > 0):
-            # --- One input per loop
-            input_key = input_queue.get()
-            command = ''
+            # --- Check input queue
+    #        logprint("Input check started {}".format(datetime.datetime.now() - loop_start_time))
+                input_key = ''
+                if (input_queue.qsize() > 0):
+                    # --- One input per loop
+                    input_key = input_queue.get()
+                    logprint("Input Key: {}".format(input_key))
+                    command = ''
 
-            # --- Add push button status
-            cv2.putText(overlay_frame, str(input_key), BUTTON_STATUS_ORIGIN, BUTTON_STATUS_FONT, BUTTON_STATUS_SCALE, BUTTON_STATUS_COLOUR, BUTTON_STATUS_THICKNESS)
+                # --- Add push button status
+                cv2.putText(overlay_frame, str(input_key), BUTTON_STATUS_ORIGIN, BUTTON_STATUS_FONT, BUTTON_STATUS_SCALE, BUTTON_STATUS_COLOUR, BUTTON_STATUS_THICKNESS)
+    
+    #            if input_key == 'UI_1_C':
+    #            elif input_key == 'UI_1_HR':
+    #            elif input_key == 'UI_2_C':
+    #            elif input_key == 'UI_2_HR':
+    #        logprint("Input check done {}".format(datetime.datetime.now() - loop_start_time))
+    
 
-#            if input_key == 'UI_1_C':
-#            elif input_key == 'UI_1_HR':
-#            elif input_key == 'UI_2_C':
-#            elif input_key == 'UI_2_HR':
-#        logprint("Input check done {}".format(datetime.datetime.now() - loop_start_time))
-
-
-        # --- Finally the display process!
-#        overlay_frame = cv2.flip(overlay_frame, 0)
-#        logprint("cv2.flip done {}".format(datetime.datetime.now() - loop_start_time))
-        overlay_frame = cv2.cvtColor(overlay_frame, cv2.COLOR_BGR2RGB)
-        logprint("cvtColor done {}".format(datetime.datetime.now() - loop_start_time))
-        overlay_frame = Image.fromarray(overlay_frame)
-        logprint("Image.fromarray done {}".format(datetime.datetime.now() - loop_start_time))
-        framebuffer.show(overlay_frame.resize(framebuffer.size))
-        logprint("Loop end, sleeping now {}\n".format(datetime.datetime.now() - loop_start_time))
-#        time.sleep(sleep_time)
-    logprint("End.")
+            # --- Finally the display process!
+    #        overlay_frame = cv2.flip(overlay_frame, 0)
+    #        logprint("cv2.flip done {}".format(datetime.datetime.now() - loop_start_time))
+    #        overlay_frame = cv2.cvtColor(overlay_frame, cv2.COLOR_BGR2RGB)
+    #        logprint("cvtColor done {}".format(datetime.datetime.now() - loop_start_time))
+            overlay_frame = Image.fromarray(overlay_frame)
+    #        logprint("Image.fromarray done {}".format(datetime.datetime.now() - loop_start_time))
+            framebuffer.show(overlay_frame.resize(framebuffer.size))
+            logprint("Loop end, starting again {}\n".format(datetime.datetime.now() - loop_start_time))
+    #        time.sleep(sleep_time)
+    except KeyboardInterrupt:
+        logprint("Ctrl-C Pressed.")
+        oet.stop_loop_thread()
+        logprint('OET Button Loop Thread Stopped')
+    finally:
+        # Turn the cursor back on
+        sys.stdout.write("\033[?25h")
+        sys.stdout.flush()
+        logprint("End.")
+        exit(0)
 
 
 if (__name__ == '__main__'):
-    os.system('clear')
     main()
 

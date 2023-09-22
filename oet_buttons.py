@@ -86,6 +86,8 @@ class OET_Buttons:
 
     def __init__(self, **kwargs):
         
+        self.kill_received = False
+
         # Add the passed callbacks to the button info, starting from 0
         # Format for the **kwargs key is button#_<action>_clbk, ie: button0_click_clbk
         
@@ -107,7 +109,7 @@ class OET_Buttons:
 
 
     def process_loop(self):
-        while True:
+        while not self.kill_received:
             output = ""
             chord_change = False
 
@@ -177,6 +179,8 @@ class OET_Buttons:
 #            if output:
 #                print(output)
             time.sleep(self.button_sleep)
+        self.button_thread.join(0)
+        exit(0)
 
 
     def start_loop_thread(self):
@@ -185,7 +189,8 @@ class OET_Buttons:
 
 
     def stop_loop_thread(self):
-        self.button_thread.join()
+        self.kill_received = True
+        self.button_thread.join(0)
 
 
     def print_mcp_values(self, pmv_bus, pmv_addr):
