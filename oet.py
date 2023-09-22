@@ -3,7 +3,7 @@
 #
 
 
-import time,datetime
+import os,time,datetime
 import logging
 import configparser
 import json
@@ -67,7 +67,7 @@ img_h                  = 1080
 #img_w                  = 720
 #img_h                  = 480
 sleep_time             = 1.0
-if config.has_option('Default','sleep'):
+if config.has_option('Default','sleep_time'):
     sleep_time         = float(config.get('Default','sleep_time'))
 
 timestamp_format       = "%Y%m%d_%H%M%S.%f%z"
@@ -105,6 +105,11 @@ def logprint(lp_text):
     print(lp_text)
 
 # --- Start button queue and setup button callbacks
+# --- Button Map:
+# --- 0: UI_1
+# --- 1: UI_2
+# --- 2: BR-, Brightness Down
+# --- 3: BR+, Brightness Up
 input_queue = queue.Queue()
 logprint("Button Queue started.")
 
@@ -124,6 +129,9 @@ def ui2_click_callback():
     input_queue.put('UI_1_C')
     logprint("UI_2 Button Clicked!")
 
+# --- For now we're just tracking the screen brightness button presses.
+# --- eventually I may implement a way of clicking those buttons or
+# --- tracking brightness levels or whatever.
 def brm_hold_callback():
     logprint("BR- Button Held and Released!")
 
@@ -135,6 +143,7 @@ def brm_click_callback():
 
 def brp_click_callback():
     logprint("BR+ Button Clicked!")
+
 
 def main():
     oet_args = {
@@ -161,13 +170,18 @@ def main():
     time_prev    = datetime.datetime.fromtimestamp(0)
 
     while True:
+        loop_start_time = datetime.datetime.now()
+        logprint("Loop Started {}".format(loop_start_time))
         # --- Create Transparent Overlay
         overlay_frame = np.full((img_h, img_w, 4), (0, 0, 0, 0), np.uint8)
+        logprint("overlay frame created {}".format(datetime.datetime.now() - loop_start_time))
 
         # --- Add time stamp
-        cv2.putText(overlay_frame, str(get_timedisplay()), TS_ORIGIN, TS_FONT, TS_SCALE, TS_COLOUR, TS_THICKNESS)
+        cv2.putText(overlay_frame, str(get_timedisplay()) + " " + str(sleep_time), TS_ORIGIN, TS_FONT, TS_SCALE, TS_COLOUR, TS_THICKNESS)
+#        logprint("timestamp done {}".format(datetime.datetime.now() - loop_start_time))
 
         # --- Determine raspberry pi status
+        logprint("status starting {}".format(datetime.datetime.now() - loop_start_time))
         pt = subprocess.Popen(['/usr/bin/vcgencmd', 'get_throttled'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         (res,err) = pt.communicate()
         res = res.decode().split("=")[1]
@@ -183,10 +197,13 @@ def main():
 
         # --- Put some status circles, current then past
         # --- green for good red for bad
+        logprint("status drawing circles {}".format(datetime.datetime.now() - loop_start_time))
         cv2.circle(overlay_frame, (CUR_STATUS_ORIGIN),  CUR_STATUS_RADIUS,  cur_status_colour,  -1)
         cv2.circle(overlay_frame, (PAST_STATUS_ORIGIN), PAST_STATUS_RADIUS, past_status_colour, -1)
+        logprint("status all done {}".format(datetime.datetime.now() - loop_start_time))
 
         # --- add a heartbeat circle
+#        logprint("heartbeat started {}".format(datetime.datetime.now() - loop_start_time))
         time_now = datetime.datetime.now()
         time_diff = time_now - time_prev
         if (time_diff >= datetime.timedelta(seconds = 1)):
@@ -196,6 +213,7 @@ def main():
             heartbeat = False
         if (heartbeat):
             cv2.circle(overlay_frame, (HEARTBEAT_ORIGIN), HEARTBEAT_RADIUS, TYRIAN_PURPLE_BGR, -1)
+#        logprint("heartbeat done {}".format(datetime.datetime.now() - loop_start_time))
 
         # --- If we're recording, add another marker
         if (is_recording):
@@ -203,29 +221,37 @@ def main():
             cv2.circle(overlay_frame, (RECORDING_STATUS_ORIGIN), RECORDING_STATUS_RADIUS, recording_status_colour, -1)
 
         # --- Check input queue
+#        logprint("Input check started {}".format(datetime.datetime.now() - loop_start_time))
         input_key = ''
         if (input_queue.qsize() > 0):
+            # --- One input per loop
             input_key = input_queue.get()
             command = ''
+
+            # --- Add push button status
+            cv2.putText(overlay_frame, str(input_key), BUTTON_STATUS_ORIGIN, BUTTON_STATUS_FONT, BUTTON_STATUS_SCALE, BUTTON_STATUS_COLOUR, BUTTON_STATUS_THICKNESS)
 
 #            if input_key == 'UI_1_C':
 #            elif input_key == 'UI_1_HR':
 #            elif input_key == 'UI_2_C':
 #            elif input_key == 'UI_2_HR':
-
-            # --- Add push button status
-            cv2.putText(overlay_frame, str(input_key), BUTTON_STATUS_ORIGIN, BUTTON_STATUS_FONT, BUTTON_STATUS_SCALE, BUTTON_STATUS_COLOUR, BUTTON_STATUS_THICKNESS)
+#        logprint("Input check done {}".format(datetime.datetime.now() - loop_start_time))
 
 
         # --- Finally the display process!
-        overlay_frame = cv2.flip(overlay_frame, 0)
+#        overlay_frame = cv2.flip(overlay_frame, 0)
+#        logprint("cv2.flip done {}".format(datetime.datetime.now() - loop_start_time))
         overlay_frame = cv2.cvtColor(overlay_frame, cv2.COLOR_BGR2RGB)
+        logprint("cvtColor done {}".format(datetime.datetime.now() - loop_start_time))
         overlay_frame = Image.fromarray(overlay_frame)
+        logprint("Image.fromarray done {}".format(datetime.datetime.now() - loop_start_time))
         framebuffer.show(overlay_frame.resize(framebuffer.size))
-        time.sleep(sleep_time)
-    print("End.")
+        logprint("Loop end, sleeping now {}\n".format(datetime.datetime.now() - loop_start_time))
+#        time.sleep(sleep_time)
+    logprint("End.")
 
 
 if (__name__ == '__main__'):
+    os.system('clear')
     main()
 

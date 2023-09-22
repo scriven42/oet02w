@@ -49,6 +49,10 @@ MCP23008 on the i2c bus included in the camera wiring.
 Next steps will be implementing a basic HUD drawn on the framebuffer, then adding audio recording controls,
 and finally adding the camera when I can polarize the screen out of the camera's view.
 
+### Status / Issues
+
+Right now, while the loop takes about half a second, the screen only updates about every 1.5 seconds.
+
 
 ## System Setup & Prerequisites
 
