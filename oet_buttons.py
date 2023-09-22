@@ -179,7 +179,7 @@ class OET_Buttons:
 #            if output:
 #                print(output)
             time.sleep(self.button_sleep)
-        self.button_thread.join(0)
+        self.button_thread.join(1)
         exit(0)
 
 
@@ -190,7 +190,7 @@ class OET_Buttons:
 
     def stop_loop_thread(self):
         self.kill_received = True
-        self.button_thread.join(0)
+        self.button_thread.join(1)
 
 
     def print_mcp_values(self, pmv_bus, pmv_addr):

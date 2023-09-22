@@ -4,6 +4,7 @@ This is both an update to, and a new design for, the OpenEyeTap by [Dr. Prof. St
 
 ### OpenEyeTap Links
 
+- [Intelligent Image Processing](https://onlinelibrary.wiley.com/doi/book/10.1002/0471221635), the textbook Dr. Mann wrote on the subject. Chapter 3 specifically involves the theory and creation of the EyeTap system.
 - [Instructable: OpenEyeTap: 3D Printed & Programmable Smart Glass](https://www.instructables.com/OpenEyeTap-3D-Printed-Programmable-Smart-Glass/),
 - [Instructable: Augmented Reality Eyeglass With Thermal Vision: Build Your Own Low-cost Raspberry Pi EyeTap](https://www.instructables.com/Augmented-Reality-Eyeglass-With-Thermal-Vision-Bui/),
 - [openeyetap.com (currently defunct)](https://openeyetap.com/)
